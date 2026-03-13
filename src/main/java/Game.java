@@ -14,6 +14,8 @@ public class Game {
     int[] values;
     private GameViewer window;
 
+    private int resetsRemaining = 3;
+
     private String message = "";
 
     private int p1Change = 0;
@@ -62,7 +64,34 @@ public class Game {
         return showingInstructions;
     }
 
+    public int getResetsRemaining() {
+        return resetsRemaining;
+    }
 
+    public void useInGameReset() {
+        if (resetsRemaining > 0) {
+            resetsRemaining--; // Decrease the allowed chances
+
+            // Reset points to 0
+            p1.setScore(0);
+            p2.setScore(0);
+
+            // Recreate and shuffle the deck
+            this.deck = new Deck(this.window, this.ranks, this.suits, this.values);
+            this.deck.shuffle();
+
+            // Clear old hands and deal new ones
+            p1.clearHand();
+            p2.clearHand();
+            for (int i = 0; i < 3; i++) {
+                p1.addCard(deck.deal());
+                p2.addCard(deck.deal());
+            }
+
+            this.message = "Game reset! " + resetsRemaining + " chances left.";
+            window.repaint();
+        }
+    }
 
     public boolean isGameOver() {
         return gameOver;

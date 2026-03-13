@@ -26,6 +26,13 @@ public class Player {
     public int getScore() {
         return score;
     }
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public void clearHand() {
+        this.hand.clear();
+    }
 
     public void addScore(int points) {
         this.score += points;

@@ -6,6 +6,8 @@ public class GameViewer extends JFrame {
     private Game game;
     public Image card;
     private JButton restartButton;
+    private JButton inGameResetButton; // Add this field at the top of the class
+
 
     public GameViewer(Game game) {
         this.game = game;
@@ -25,6 +27,19 @@ public class GameViewer extends JFrame {
         restartButton.setVisible(false);
         restartButton.addActionListener(e -> game.resetGame());
         add(restartButton);
+        // Inside the GameViewer constructor, below your other button:
+        inGameResetButton = new JButton("Use Reset (3)");
+        // x = 570 (near the right edge), y = 20 (near the top), width = 200, height = 40
+        inGameResetButton.setBounds(570, 20, 200, 40);        inGameResetButton.setFont(new Font("Arial", Font.BOLD, 16));
+        inGameResetButton.setVisible(false);
+        inGameResetButton.addActionListener(e -> {
+            game.useInGameReset();
+            inGameResetButton.setText("Use Reset (" + game.getResetsRemaining() + ")");
+            if (game.getResetsRemaining() <= 0) {
+                inGameResetButton.setVisible(false);
+            }
+        });
+        add(inGameResetButton);
 
         setVisible(true);
     }
@@ -44,6 +59,8 @@ public class GameViewer extends JFrame {
             drawGame(g);
         }
     }
+
+
 
     private void drawInstructions(Graphics g) {
         g.setColor(Color.BLACK);
@@ -82,9 +99,21 @@ public class GameViewer extends JFrame {
         g.setFont(new Font("Arial", Font.PLAIN, 18));
         g.drawString("change: " + game.getP1Change(), 450, 150);
         g.drawString("change: " + game.getP2Change(), 450, 625);
+
+        // Show the button if they have chances left
+        if (game.getResetsRemaining() > 0) {
+            inGameResetButton.setVisible(true);
+        }
+
+        // Draw info box for remaining resets
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.BOLD, 16));
+        g.drawString("Resets remaining: " + game.getResetsRemaining() + " / 3", 50, 50);
+
     }
 
     private void drawGameOver(Graphics g) {
+
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 50));
         g.drawString("GAME OVER", 200, 300);
