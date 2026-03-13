@@ -1,56 +1,52 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferStrategy;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
 import java.util.ArrayList;
-
 
 public class GameViewer extends JFrame {
     private Game game;
     public Image card;
+    private JButton restartButton;
 
     public GameViewer(Game game) {
         this.game = game;
         card = new ImageIcon("src/main/resources/1.png").getImage();
         setTitle("Card War");
-        setSize(800,675);
+        setSize(800, 675);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setVisible(true);
+        setLayout(null); // Absolute positioning
 
+        // Safely set the background color so it doesn't cover components
+        getContentPane().setBackground(new Color(109, 171, 100));
+
+        // Initialize Restart Button
+        restartButton = new JButton("Restart Game");
+        restartButton.setBounds(300, 550, 200, 50);
+        restartButton.setFont(new Font("Arial", Font.BOLD, 20));
+        restartButton.setVisible(false);
+        restartButton.addActionListener(e -> game.resetGame());
+        add(restartButton);
+
+        setVisible(true);
     }
 
+    public void showRestartButton(boolean show) {
+        restartButton.setVisible(show);
+    }
 
     public void paint(Graphics g) {
-        super.paint(g);
-
-        // background
-        g.setColor(new Color(109, 171, 100));
-        g.fillRect(0, 0, getWidth(), getHeight());
+        super.paint(g); // Paints standard components (background and button) first
 
         if (game.isShowingInstructions()) {
             drawInstructions(g);
-            return;
-        }
-
-        // draw ONE screen only
-        if (game.isGameOver()) {
+        } else if (game.isGameOver()) {
             drawGameOver(g);
-            return;
         } else {
             drawGame(g);
         }
-
-
-        Color back = new Color(109, 171,100);
-        g.setColor(back);
-
-
-
     }
+
     private void drawInstructions(Graphics g) {
         g.setColor(Color.BLACK);
-
         g.setFont(new Font("Arial", Font.BOLD, 50));
         g.drawString("WAR", 320, 120);
 
@@ -61,12 +57,9 @@ public class GameViewer extends JFrame {
         g.drawString("If total value > 20, both players lose points.", 220, 380);
         g.drawString("We play until no cards remain.", 270, 440);
         g.drawString("Good luck!", 350, 500);
-
-        g.setFont(new Font("Arial", Font.BOLD, 22));
     }
 
     private void drawGame(Graphics g) {
-        // draw cards ONLY during gameplay
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 40));
         g.drawString("WAR", 350, 100);
@@ -75,19 +68,17 @@ public class GameViewer extends JFrame {
         g.drawString("Score: " + game.p2.getScore(), 50, 550);
         g.drawString(game.p1.getName(), 350, 150);
         g.drawString(game.p2.getName(), 350, 625);
+
         ArrayList<Card> hand = game.p1.getHand();
         for (int i = 0; i < hand.size(); i++) {
-//            System.out.println("Drawing card " + i);
-//            System.out.println(hand.get(i));
-            hand.get(i).draw(g,i);
-            game.p2.getHand().get(i).draw(g,i+10);// Delete later
+            hand.get(i).draw(g, i);
+            game.p2.getHand().get(i).draw(g, i + 10); // Delete later
         }
-        // round result message
+
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 20));
         g.drawString(game.getMessage(), 450, 367);
 
-        // score changes
         g.setFont(new Font("Arial", Font.PLAIN, 18));
         g.drawString("change: " + game.getP1Change(), 450, 150);
         g.drawString("change: " + game.getP2Change(), 450, 625);
@@ -100,5 +91,4 @@ public class GameViewer extends JFrame {
         g.drawString("Player 1 Score: " + game.p1.getScore(), 200, 400);
         g.drawString("Player 2 Score: " + game.p2.getScore(), 200, 500);
     }
-
 }

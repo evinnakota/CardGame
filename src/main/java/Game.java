@@ -78,7 +78,40 @@ public class Game {
         // prevent card reuse
         p1.getHand().clear();
         p2.getHand().clear();
+        window.showRestartButton(true); // Show the button
         window.repaint();
+    }
+
+    public void resetGame() {
+        // 1. Reset boolean flags and UI messages
+        this.gameOver = false;
+        this.showingInstructions = true;
+        this.p1Change = 0;
+        this.p2Change = 0;
+        this.message = "";
+
+        // 2. Recreate and shuffle the deck
+        this.deck = new Deck(this.window, this.ranks, this.suits, this.values);
+        this.deck.shuffle();
+
+        // 3. Reset players to a blank state
+        this.p1 = new Player("");
+        this.p2 = new Player("");
+
+        // 4. Deal initial cards
+        for (int i = 0; i < 3; i++) {
+            p1.addCard(deck.deal());
+            p2.addCard(deck.deal());
+        }
+
+        // 5. Hide the button and update the screen
+        window.showRestartButton(false);
+        window.repaint();
+
+        // 6. Restart the console game loop in a NEW thread to prevent UI freezing
+        new Thread(() -> {
+            playGame();
+        }).start();
     }
 
     public void printInstructions() {
@@ -120,17 +153,22 @@ public class Game {
                 System.out.println((i + 1) + ": " + p1.getHand().get(i));
             }
 
-            int playerChoice;
-
+            int playerChoice = -1;
             // input validation loop
             while (true) {
                 System.out.print("Pick a card to play (1-" + p1.getHand().size() + "): ");
-                if (input.hasNextInt()) {
-                    playerChoice = input.nextInt() - 1;
-                    if (playerChoice >= 0 && playerChoice < p1.getHand().size()) break;
+                String line = input.nextLine().trim(); // Reads the whole line safely
+
+                try {
+                    playerChoice = Integer.parseInt(line) - 1;
+                    if (playerChoice >= 0 && playerChoice < p1.getHand().size()) {
+                        break; // Valid choice, break the loop
+                    } else {
+                        System.out.println("Invalid choice. Try again.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid choice. Please enter a number.");
                 }
-                System.out.println("Invalid choice. Try again.");
-                input.nextLine();
             }
 
             Card c1 = p1.getHand().get(playerChoice);
