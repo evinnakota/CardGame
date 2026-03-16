@@ -39,6 +39,7 @@ public class GameViewer extends JFrame {
                 inGameResetButton.setVisible(false);
             }
         });
+
         add(inGameResetButton);
 
         setVisible(true);
